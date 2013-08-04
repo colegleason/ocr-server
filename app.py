@@ -1,5 +1,6 @@
 from flask import Flask, request
 from readbot import ReadBot
+from PIL import Image, ImageOps
 import tempfile
 import os
 
@@ -14,12 +15,15 @@ def process():
         tfile = os.fdopen(fd, "w")
         tfile.write(image)
         tfile.close()
+        img = Image.open(filename)
+        w, h = img.size
+        img = img.resize((w*2, h*2))
+        img = ImageOps.grayscale(img)
+        img.save(filename, "PNG")
         result = rb.interpret(filename)
     finally:
         os.remove(filename)
-    print result
     return result
 
 if __name__ == "__main__":
-    app.debug = True
     app.run()
